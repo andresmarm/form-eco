@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReportStatus {
+  NUEVO
+  EN_REVISION
+  EN_PROCESO
+  ATENDIDO
+  CERRADO
+}
+
+enum NeedItemStatus {
+  PENDIENTE
+  EN_PROCESO
+  CUBIERTO
+}
+
+enum NeedCategory {
+  MATERIALES_CONSTRUCCION
+  ALIMENTOS_AGUA
+  MEDICAMENTOS_INSUMOS_MEDICOS
+  HERRAMIENTAS
+  REFUGIO_TEMPORAL
+  SERVICIOS
+  OTRO
+}
+
+enum LocationSource {
+  GPS
+  MANUAL
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Id generado en el cliente para deduplicar reintentos de sincronizacion offline
+  clientId String? @unique
+
+  // Contacto
+  contactName    String
+  phonePrimary   String
+  phoneAlternate String?
+
+  // Ubicacion
+  locationSource LocationSource
+  latitude       Float?
+  longitude      Float?
+  address        String?
+  municipality   String
+  neighborhood   String?
+
+  // Estado y seguimiento
+  status        ReportStatus @default(NUEVO)
+  internalNotes String?
+
+  needItems NeedItem[]
+  photos    Photo[]
+
+  @@index([status])
+  @@index([municipality])
+  @@index([createdAt])
+}
+
+model NeedItem {
+  id       String @id @default(cuid())
+  reportId String
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  category  NeedCategory
+  itemKey   String
+  itemLabel String
+  quantity  Float
+  unit      String
+  status    NeedItemStatus @default(PENDIENTE)
+  note      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reportId])
+  @@index([category])
+  @@index([status])
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  reportId  String
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  url       String
+  createdAt DateTime @default(now())
+
+  @@index([reportId])
+}

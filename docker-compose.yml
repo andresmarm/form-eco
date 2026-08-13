@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: form_eco_pg
+    environment:
+      POSTGRES_USER: formeco
+      POSTGRES_PASSWORD: formeco_dev_pw
+      POSTGRES_DB: form_eco
+    ports:
+      - "5433:5432"
+    volumes:
+      - form_eco_pg_data:/var/lib/postgresql/data
+
+volumes:
+  form_eco_pg_data:

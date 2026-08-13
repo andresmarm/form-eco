@@ -1,0 +1,25 @@
+{
+  "name": "Reporte Terremoto Colombia",
+  "short_name": "ReporteEco",
+  "description": "Reporta necesidades y ubicación tras el terremoto del 10 de agosto en Colombia",
+  "start_url": "/reportar",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#059669",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
