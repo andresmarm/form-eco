@@ -32,8 +32,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: blob.url }, { status: 201 });
   }
 
-  // Fallback de desarrollo local: sin BLOB_READ_WRITE_TOKEN se guarda en /public/uploads
-  // para poder probar el flujo completo sin depender de una cuenta de Vercel.
+  // En Vercel el filesystem de las funciones es de solo lectura (excepto /tmp,
+  // que no persiste entre invocaciones): sin BLOB_READ_WRITE_TOKEN no hay dónde
+  // guardar la foto. Falla con un mensaje claro en vez de un 500 opaco al
+  // intentar escribir en disco.
+  if (process.env.VERCEL) {
+    return NextResponse.json(
+      { error: "Falta configurar BLOB_READ_WRITE_TOKEN para guardar fotos en este entorno" },
+      { status: 500 }
+    );
+  }
+
+  // Fallback de desarrollo local (o VPS con disco persistente): sin
+  // BLOB_READ_WRITE_TOKEN se guarda en /public/uploads para poder probar el
+  // flujo completo sin depender de una cuenta de Vercel.
   const uploadsDir = path.join(process.cwd(), "public", "uploads", "reportes");
   await mkdir(uploadsDir, { recursive: true });
   const localName = `${randomUUID()}.${extension}`;
